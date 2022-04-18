@@ -62,3 +62,6 @@ buck-out/
 
 #google-services config for Firebase
 /android/app/google-services.json
+
+#environmental variables used by react-native-dotenv
+.env

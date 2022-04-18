@@ -11,11 +11,17 @@ import {
 } from 'react-native';
 
 import auth from '@react-native-firebase/auth';
+import { WEB_CLIENT_ID } from '@env';
+import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 
 const App = () => {
 
   const [initializing, setInitializing] = React.useState(true);
   const [user, setUser] = React.useState();
+
+  GoogleSignin.configure({
+    webClientId: WEB_CLIENT_ID,
+  });
 
   const onAuthStateChanged = (user) => {
     setUser(user);
@@ -34,7 +40,20 @@ const App = () => {
       .then(() => {console.log('Signed out')});
   }
 
-  const loginHandle = () => {
+  const onGoogleButtonPress = async () => {
+    // Get the users ID token
+    console.log('google signin Button pressed');
+    const { idToken } = await GoogleSignin.signIn();
+    console.log(`signed in with token ${idToken}`);
+  
+    // Create a Google credential with the token
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+  
+    // Sign-in the user with the credential
+    return auth().signInWithCredential(googleCredential);
+  }
+
+  const anonymousLoginHandle = () => {
     console.log('login button pressed'); //for debug
     auth()
       .signInAnonymously()
@@ -54,9 +73,12 @@ const App = () => {
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.centered}>
         <View style={styles.centered}>
           <Text>Please, sign-in:</Text>
-          <TouchableOpacity onPress={loginHandle}>
-            <Text style={{textDecorationLine: 'underline'}}>Log in</Text>
-          </TouchableOpacity>
+          <GoogleSigninButton
+            style={{ width: 350, height: 48 }}
+            size={GoogleSigninButton.Size.Wide}
+            color={GoogleSigninButton.Color.Dark}
+            onPress={onGoogleButtonPress}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -66,7 +88,7 @@ const App = () => {
     <SafeAreaView style={{flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.centered}>
         <View style={styles.centered}>
-          <Text>You are logged in as {user.uid}</Text>
+          <Text>You are logged in as {user.displayName}</Text>
           <TouchableOpacity onPress={logoutHandle}>
             <Text style={{textDecorationLine: 'underline'}}>Log out</Text>
           </TouchableOpacity>
