@@ -7,12 +7,13 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
 } from 'react-native';
 
 import auth from '@react-native-firebase/auth';
 import { WEB_CLIENT_ID } from '@env';
 import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+
+import LoginBar from './app/components/LoginBar';
 
 const App = () => {
 
@@ -86,13 +87,8 @@ const App = () => {
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.centered}>
-        <View style={styles.centered}>
-          <Text>You are logged in as {user.displayName}</Text>
-          <TouchableOpacity onPress={logoutHandle}>
-            <Text style={{textDecorationLine: 'underline'}}>Log out</Text>
-          </TouchableOpacity>
-        </View>
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
+        {LoginBar(user.displayName, logoutHandle)}
       </ScrollView>
     </SafeAreaView>
   );
