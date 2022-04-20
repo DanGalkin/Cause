@@ -8,7 +8,8 @@ import {
     StyleSheet,
     } from 'react-native';
 
-const LoginBar = (userName, logout) => {
+const LoginBar = (props) => {
+    const { userName, logout } = props;
     return(
         <View style={styles.loginBar}>
             <Text>Hi, {userName || 'Fella'}!</Text>
