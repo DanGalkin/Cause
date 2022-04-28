@@ -88,10 +88,9 @@ const App = () => {
   return (
     <SafeAreaView style={{flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <LoginBar
+        <LoginBar 
           userName={user.displayName}
-          logout={logoutHandle}
-        />
+          logout={logoutHandle}/>
       </ScrollView>
     </SafeAreaView>
   );
