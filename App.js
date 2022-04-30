@@ -12,8 +12,15 @@ import {
 import auth from '@react-native-firebase/auth';
 import { WEB_CLIENT_ID } from '@env';
 import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginBar from './app/components/LoginBar';
+import ParamListScreen from './app/components/ParamListScreen';
+import AddNoteScreen from './app/components/AddNoteScreen';
+import EditParamScreen from './app/components/EditParamScreen';
+
+const Stack = createNativeStackNavigator();
 
 const App = () => {
 
@@ -87,10 +94,17 @@ const App = () => {
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ flex: 1 }}>
         <LoginBar 
           userName={user.displayName}
           logout={logoutHandle}/>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="ParamList">
+            <Stack.Screen name='ParamList' component={ParamListScreen} />
+            <Stack.Screen name='EditParam' component={EditParamScreen} />
+            <Stack.Screen name='AddNote' component={AddNoteScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
       </ScrollView>
     </SafeAreaView>
   );
