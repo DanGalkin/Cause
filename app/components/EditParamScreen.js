@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { ListFormer } from './EditParamUtilities';
+import { UserIdContext } from './Contexts.js';
 
 const EditParamScreen = ( {navigation} ) => {
     const [paramName, setParamName] = useState();
@@ -17,6 +18,8 @@ const EditParamScreen = ( {navigation} ) => {
     const [valueType, setValueType] = useState();
     const [metric, setMetric] = useState();
     const [optionList, setOptionList] = useState();
+
+    const userId = React.useContext(UserIdContext);
 
     return(
         <View style={styles.container}>
@@ -60,7 +63,7 @@ const EditParamScreen = ( {navigation} ) => {
                         paramObject['valueType'] = valueType;
                         paramObject['metric'] = metric;
                         paramObject['optionList'] = optionList;
-                        console.log(paramObject);
+                        console.log(paramObject); // TODO: save the paramObject to Database
                     }}
                 />
             </View>

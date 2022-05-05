@@ -19,6 +19,7 @@ import LoginBar from './app/components/LoginBar';
 import ParamListScreen from './app/components/ParamListScreen';
 import AddNoteScreen from './app/components/AddNoteScreen';
 import EditParamScreen from './app/components/EditParamScreen';
+import { UserIdContext } from './app/components/Contexts.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -99,11 +100,13 @@ const App = () => {
           userName={user.displayName}
           logout={logoutHandle}/>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="ParamList">
-            <Stack.Screen name='ParamList' component={ParamListScreen} />
-            <Stack.Screen name='EditParam' component={EditParamScreen} />
-            <Stack.Screen name='AddNote' component={AddNoteScreen} />
-          </Stack.Navigator>
+          <UserIdContext.Provider value={user.uid}>
+            <Stack.Navigator initialRouteName="ParamList">
+              <Stack.Screen name='ParamList' component={ParamListScreen} />
+              <Stack.Screen name='EditParam' component={EditParamScreen} />
+              <Stack.Screen name='AddNote' component={AddNoteScreen} />
+            </Stack.Navigator>
+          </UserIdContext.Provider>
         </NavigationContainer>
       </ScrollView>
     </SafeAreaView>
