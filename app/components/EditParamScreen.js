@@ -8,6 +8,8 @@ import {
     Button,
 } from 'react-native';
 
+import database from '@react-native-firebase/database';
+
 import { ListFormer } from './EditParamUtilities';
 import { UserIdContext } from './Contexts.js';
 
@@ -64,6 +66,9 @@ const EditParamScreen = ( {navigation} ) => {
                         paramObject['metric'] = metric;
                         paramObject['optionList'] = optionList;
                         console.log(paramObject); // TODO: save the paramObject to Database
+
+                        const newParamReference = database().ref(`/users/${userId}/params`).push();
+                        newParamReference.set(paramObject);
                     }}
                 />
             </View>
