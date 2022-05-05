@@ -20,6 +20,7 @@ const EditParamScreen = ( {navigation} ) => {
     const [valueType, setValueType] = useState();
     const [metric, setMetric] = useState();
     const [optionList, setOptionList] = useState();
+    const [finishButtonDisabled, setFinishButtonDisabled] = useState(false);
 
     const userId = React.useContext(UserIdContext);
 
@@ -57,7 +58,9 @@ const EditParamScreen = ( {navigation} ) => {
             <View style={{margin: 10}}>
                 <Button
                     title='Finish editing'
+                    disabled={finishButtonDisabled}
                     onPress={() => {
+                        setFinishButtonDisabled(true);
                         let paramObject = {};
                         paramObject['durationType'] = durationType;
                         paramObject['name'] = paramName;
@@ -65,7 +68,6 @@ const EditParamScreen = ( {navigation} ) => {
                         paramObject['valueType'] = valueType;
                         paramObject['metric'] = metric;
                         paramObject['optionList'] = optionList;
-                        console.log(paramObject); // TODO: save the paramObject to Database
 
                         const newParamReference = database().ref(`/users/${userId}/params`).push();
                         newParamReference.set(paramObject);
