@@ -41,14 +41,15 @@ const ParamListScreen = ( {navigation} ) => {
         <View style={{ flex: 1 }}>
             <Text style={styles.label}>Click on param to add new value:</Text>
             <View style={styles.row}>
-                {Object.keys(paramList).map(key => (
+                {Object.keys(paramList).map(key => {
+                    return(
                     <TouchableOpacity
                         key={key}
                         style={styles.paramItem}
-                        onPress={() => navigation.navigate('AddNote')} >
+                        onPress={() => navigation.navigate('AddNote', { paramId: key })} >
                         <Text>{paramList[key]['name']}</Text>
                     </TouchableOpacity>
-                ))}
+                )})}
             </View>
             <View style={{ flex: 1, flexDirection: 'column-reverse', marginBottom: 30 }}>
                 <Button
