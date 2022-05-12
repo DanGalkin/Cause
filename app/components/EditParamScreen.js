@@ -12,6 +12,7 @@ import database from '@react-native-firebase/database';
 
 import { ListFormer } from './EditParamUtilities';
 import { UserIdContext } from './Contexts.js';
+import SelectionButtons from '../utilities/SelectionButtons';
 
 const EditParamScreen = ( {navigation} ) => {
     const [paramName, setParamName] = useState();
@@ -77,30 +78,6 @@ const EditParamScreen = ( {navigation} ) => {
         </View>
     );
 }
-
-const SelectionButtons = ({ values, selectedValue, setSelectedValue}) => (
-    <View style={styles.row}>
-        {values.map((value) => (
-            <TouchableOpacity
-                key={value}
-                onPress={() => setSelectedValue(value)}
-                style={[
-                    styles.button,
-                    selectedValue === value && styles.selected
-                ]}
-            >
-                <Text
-                    style={[
-                        styles.buttonLabel,
-                        selectedValue === value && styles.selectedLabel
-                    ]}
-                >
-                    {value}
-                </Text>
-            </TouchableOpacity>
-        ))}
-    </View>
-)
 
 const ValueTypeOptions = ({ option, setMetric, setOptionList }) => {
     if (!option) {
