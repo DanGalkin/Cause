@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Text,
     View,
-    TouchableOpacity,
     StyleSheet,
     TextInput,
     Button,
@@ -14,7 +13,8 @@ import { ListFormer } from './EditParamUtilities';
 import { UserIdContext } from './Contexts.js';
 import SelectionButtons from '../utilities/SelectionButtons';
 
-const EditParamScreen = ( {navigation} ) => {
+const EditParamScreen = ( { route, navigation } ) => {
+
     const [paramName, setParamName] = useState();
     const [durationType, setDurationType] = useState();
     const [complexityType, setComplexityType] = useState();
@@ -23,14 +23,29 @@ const EditParamScreen = ( {navigation} ) => {
     const [optionList, setOptionList] = useState();
     const [finishButtonDisabled, setFinishButtonDisabled] = useState(false);
 
+    //if editing existing param, set values of this param
+    useEffect(() => {
+        if(route.params) {
+            const paramToEdit = route.params.param;
+
+            setParamName(paramToEdit.name);
+            setDurationType(paramToEdit.durationType);
+            setComplexityType(paramToEdit.complexityType);
+            setValueType(paramToEdit.valueType);
+            setMetric(paramToEdit.metric ? paramToEdit.metric : null);
+            setOptionList(paramToEdit.optionList ? paramToEdit.optionList : null);
+        }
+    }, [])
+
     const userId = React.useContext(UserIdContext);
 
     return(
         <View style={styles.container}>
-            <Text style={styles.label}>Create a new param</Text>
+            <Text style={styles.label}>{route.params ? `Edit the param: ${route.params.param.name}` : `Create a new param`}</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Name the new param"
+                placeholder="Name the param"
+                value={paramName || null}
                 onChangeText={value => (setParamName(value))}
             />
             <Text style={styles.label}>Select a DURATION type of a param</Text>
@@ -53,7 +68,9 @@ const EditParamScreen = ( {navigation} ) => {
             />
             <ValueTypeOptions
                 option={valueType}
+                metric={metric}
                 setMetric={setMetric}
+                optionList={optionList}
                 setOptionList={setOptionList}
             />
             <View style={{margin: 10}}>
@@ -70,8 +87,17 @@ const EditParamScreen = ( {navigation} ) => {
                         paramObject['metric'] = metric;
                         paramObject['optionList'] = optionList;
 
-                        const newParamReference = database().ref(`/users/${userId}/params`).push();
-                        newParamReference.set(paramObject);
+                        //create new item if it's creating a new param
+                        if(!route.params) {
+                            const newParamReference = database().ref(`/users/${userId}/params`).push();
+                            newParamReference.set(paramObject);
+                        }
+                        
+                        //save to existing param if it's editing
+                        if(route.params) {
+                            database().ref(`/users/${userId}/params/${route.params.paramId}`).set(paramObject);
+                            //TODO: Get back to previous navigation screen to UPDATED AddNote screen
+                        }
                     }}
                 />
             </View>
@@ -79,7 +105,7 @@ const EditParamScreen = ( {navigation} ) => {
     );
 }
 
-const ValueTypeOptions = ({ option, setMetric, setOptionList }) => {
+const ValueTypeOptions = ({ option, metric, setMetric, optionList, setOptionList }) => {
     if (!option) {
         return null;
     }
@@ -94,6 +120,7 @@ const ValueTypeOptions = ({ option, setMetric, setOptionList }) => {
                 <Text style={styles.label}>How your param will be measured?</Text>
                 <TextInput
                     style={styles.input}
+                    value={metric || null}
                     placeholder="Name the metric for param (kg, sec, pcs, anything)"
                     onChangeText={value => setMetric(value)}
                 />
@@ -105,6 +132,7 @@ const ValueTypeOptions = ({ option, setMetric, setOptionList }) => {
         return (
             <ListFormer 
                 returnListArray={setOptionList}
+                optionList={optionList}
             />
         );
     }

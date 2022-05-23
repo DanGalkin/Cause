@@ -9,9 +9,9 @@ import {
 
 
 
-export const ListFormer = ({ returnListArray }) => {
+export const ListFormer = ({ returnListArray, optionList = null }) => {
     const [itemInput, setItemInput] = useState(null);
-    const [listArray, setListArray] = useState([]);
+    const [listArray, setListArray] = useState(optionList);
     const itemInputRef = React.useRef();
     
     return (

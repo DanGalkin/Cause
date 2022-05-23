@@ -53,29 +53,38 @@ const AddNoteScreen = ({ route, navigation }) => {
                 setNoteValue={setNoteValue}
             />
             {/*Submit button*/}
-            <View style={{ flex: 1, flexDirection: 'column-reverse', marginBottom: 30 }}>
-                <Button
-                    title='Submit this note'
-                    disabled={submitButtonDisabled}
-                    onPress={() => {
-                        //FINISH THIS
-                        console.log('debugging Submit');
-                        console.log(`paramId is: ${paramId}`);
-                        console.log(`pickedTime is: ${JSON.stringify(pickedTime)}`);
-                        console.log(`noteValue is: ${JSON.stringify(noteValue)}`);
-                        setSubmitButtonDisabled(true);
-                        const noteObject = {
-                            'paramId' : paramId,
-                            ...pickedTime,
-                            ...noteValue
-                        };
+            <View style={{ flex: 1, flexDirection: 'column-reverse'}}>
+                <View style={{marginBottom: 30}}>
+                    <Button
+                        title='Submit this note'
+                        disabled={submitButtonDisabled}
+                        onPress={() => {
+                            console.log('debugging Submit');
+                            console.log(`paramId is: ${paramId}`);
+                            console.log(`pickedTime is: ${JSON.stringify(pickedTime)}`);
+                            console.log(`noteValue is: ${JSON.stringify(noteValue)}`);
+                            setSubmitButtonDisabled(true);
+                            const noteObject = {
+                                'paramId' : paramId,
+                                ...pickedTime,
+                                ...noteValue
+                            };
 
-                        console.log(`noteObject is: ${JSON.stringify(noteObject)}`);
+                            console.log(`noteObject is: ${JSON.stringify(noteObject)}`);
 
-                        const newNoteReference = database().ref(`/users/${userId}/data/${Date.now()}`);
-                        newNoteReference.set(noteObject);
-                    }}
-                />
+                            const newNoteReference = database().ref(`/users/${userId}/data/${Date.now()}`);
+                            newNoteReference.set(noteObject);
+                        }}
+                    />
+                </View>
+            
+            {/*Edit button*/  }
+                <View style={{marginBottom: 30}}>
+                    <Button
+                        title='Edit this param'
+                        onPress={() => navigation.navigate('EditParam', { param: param, paramId: paramId })}
+                    />
+                </View>
             </View>
         </View>
     );
