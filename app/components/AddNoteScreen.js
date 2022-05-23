@@ -26,16 +26,18 @@ const AddNoteScreen = ({ route, navigation }) => {
     const [pickedTime, setPickedTime] = useState();
     const [noteValue, setNoteValue] = useState({'value': true});
 
-    
-
-    //get the param props from the DB on load
-    useEffect(() => {
+    const updateParamProps = () => {
         database()
             .ref(`/users/${userId}/params/${paramId}`)
             .once('value')
             .then(snapshot => {
                 setParam(snapshot.val());
             });
+    }
+
+    //get the param props from the DB on load
+    useEffect(() => {
+        updateParamProps();
     }, []);
 
     return (
@@ -82,7 +84,7 @@ const AddNoteScreen = ({ route, navigation }) => {
                 <View style={{marginBottom: 30}}>
                     <Button
                         title='Edit this param'
-                        onPress={() => navigation.navigate('EditParam', { param: param, paramId: paramId })}
+                        onPress={() => navigation.navigate('EditParam', { param: param, paramId: paramId, refreshOnBack: updateParamProps })}
                     />
                 </View>
             </View>

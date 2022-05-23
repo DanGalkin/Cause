@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import database from '@react-native-firebase/database';
+import { CommonActions } from '@react-navigation/native';
 
 import { ListFormer } from './EditParamUtilities';
 import { UserIdContext } from './Contexts.js';
@@ -96,7 +97,9 @@ const EditParamScreen = ( { route, navigation } ) => {
                         //save to existing param if it's editing
                         if(route.params) {
                             database().ref(`/users/${userId}/params/${route.params.paramId}`).set(paramObject);
-                            //TODO: Get back to previous navigation screen to UPDATED AddNote screen
+                            route.params.refreshOnBack();
+                            navigation.dispatch(CommonActions.goBack());
+                            //TODO: Deal with the warning: "Non-serializable values were found in the navigation state"
                         }
                     }}
                 />
@@ -132,7 +135,7 @@ const ValueTypeOptions = ({ option, metric, setMetric, optionList, setOptionList
         return (
             <ListFormer 
                 returnListArray={setOptionList}
-                optionList={optionList}
+                optionList={optionList || []}
             />
         );
     }

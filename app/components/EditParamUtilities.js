@@ -9,7 +9,7 @@ import {
 
 
 
-export const ListFormer = ({ returnListArray, optionList = null }) => {
+export const ListFormer = ({ returnListArray, optionList = [] }) => {
     const [itemInput, setItemInput] = useState(null);
     const [listArray, setListArray] = useState(optionList);
     const itemInputRef = React.useRef();
@@ -18,28 +18,30 @@ export const ListFormer = ({ returnListArray, optionList = null }) => {
         <View>
             <Text style={styles.label}>Edit the list of possible values</Text>
             <View style={styles.row}>
-                {listArray.map((listItem, index) => (
-                    <View
-                        style={styles.listItem}
-                        key={index}
-                    >
-                        <Text>{listItem}  </Text>
-                        <TouchableOpacity
-                            onPress={() => {
-                                let newListArray = [...listArray];
-                                newListArray.splice(index, 1);
-
-                                setListArray(newListArray);
-
-                                if(returnListArray) {
-                                    returnListArray(newListArray);
-                                }
-                            }}
+                {
+                    listArray.map((listItem, index) => (
+                        <View
+                            style={styles.listItem}
+                            key={index}
                         >
-                            <Text>X</Text>
-                        </TouchableOpacity>
-                    </View>
-                ))}
+                            <Text>{listItem}  </Text>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    let newListArray = [...listArray];
+                                    newListArray.splice(index, 1);
+
+                                    setListArray(newListArray);
+
+                                    if(returnListArray) {
+                                        returnListArray(newListArray);
+                                    }
+                                }}
+                            >
+                                <Text>X</Text>
+                            </TouchableOpacity>
+                        </View>
+                        ))
+                    }
             </View>
             <View style={styles.row}>
                 <TextInput
