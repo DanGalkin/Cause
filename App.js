@@ -19,6 +19,7 @@ import LoginBar from './app/components/LoginBar';
 import ParamListScreen from './app/components/ParamListScreen';
 import AddNoteScreen from './app/components/AddNoteScreen';
 import EditParamScreen from './app/components/EditParamScreen';
+import DisplayScreen from './app/components/DisplayScreen';
 import { UserIdContext } from './app/components/Contexts.js';
 
 const Stack = createNativeStackNavigator();
@@ -105,6 +106,7 @@ const App = () => {
               <Stack.Screen name='ParamList' component={ParamListScreen} />
               <Stack.Screen name='EditParam' component={EditParamScreen} />
               <Stack.Screen name='AddNote' component={AddNoteScreen} />
+              <Stack.Screen name='Display' component={DisplayScreen} />
             </Stack.Navigator>
           </UserIdContext.Provider>
         </NavigationContainer>

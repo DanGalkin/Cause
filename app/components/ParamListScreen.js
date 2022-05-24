@@ -10,7 +10,7 @@ import {
 import database from '@react-native-firebase/database';
 import { UserIdContext } from './Contexts.js';
 
-const ParamListScreen = ( {navigation} ) => {
+const ParamListScreen = ( {navigation} ) => {   
     const [paramList, setParamsList] = useState([]);
 
     const userId = useContext(UserIdContext);
@@ -51,10 +51,17 @@ const ParamListScreen = ( {navigation} ) => {
                     </TouchableOpacity>
                 )})}
             </View>
-            <View style={{ flex: 1, flexDirection: 'column-reverse', marginBottom: 30 }}>
-                <Button
-                    title='Add new param'
-                    onPress={() => navigation.navigate('EditParam')} />
+            <View style={{ flex: 1, flexDirection: 'column-reverse'}}>
+                <View style={{ marginBottom: 30 }}>
+                    <Button
+                        title='View recorded entries'
+                        onPress={() => navigation.navigate('Display')} />
+                </View>
+                <View style={{ marginBottom: 30 }}>
+                    <Button
+                        title='Add new param'
+                        onPress={() => navigation.navigate('EditParam')} />
+                </View>
             </View>
         </View>
     );
