@@ -60,7 +60,7 @@ const ParamListScreen = ( {navigation} ) => {
                 <View style={{ marginBottom: 30 }}>
                     <Button
                         title='Add new param'
-                        onPress={() => navigation.navigate('EditParam')} />
+                        onPress={() => navigation.navigate('EditParam', {isNew: true, isChild: false})} />
                 </View>
             </View>
         </View>
