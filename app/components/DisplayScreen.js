@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import database from '@react-native-firebase/database';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 import { UserIdContext } from './Contexts.js';
 
@@ -36,7 +37,7 @@ const DisplayScreen = ( { navigation } ) => {
 
     if(!userEntries || !userParams) return(
         <View style={{ flex: 1 }}>
-            <Text>Retriebing data from Database</Text>
+            <Text>Retrieving data from Database</Text>
             <View style={{ flexDirection: 'column-reverse', marginBottom: 30 }}>
                 <Button
                     title='Back to param list'
@@ -54,16 +55,25 @@ const DisplayScreen = ( { navigation } ) => {
                         <DisplayEntry
                             entryObject={userEntries[entry]}
                             paramObject={userParams[userEntries[entry]['paramId']]}
+                            key={entry}
                         />
                     );
                 })}
             </ScrollView>
 
-            <View style={{ flexDirection: 'column-reverse', marginBottom: 30 }}>
-                <Button
-                    title='Back to param list'
-                    onPress={() => navigation.navigate('ParamList')}
-                />
+            <View style={{ flexDirection: 'column-reverse'}}>
+                <View style={{ marginBottom: 30 }}>
+                    <Button
+                        title='Back to param list'
+                        onPress={() => navigation.navigate('ParamList')}
+                    />
+                </View>
+                <View style={{ marginBottom: 30 }}>
+                    <Button
+                        title='Copy your data in JSON to clipboard'
+                        onPress={() => Clipboard.setString(JSON.stringify(userEntries))}
+                    />
+                </View>
             </View>
         </View>
     );
@@ -71,34 +81,46 @@ const DisplayScreen = ( { navigation } ) => {
 
 const DisplayEntry = ({ entryObject, paramObject }) => {
 
-    console.log(entryObject);
-    console.log(paramObject);
-
     const paramName = paramObject['name'];
     const entryValue = entryObject['value'];
     const moment = entryObject['moment'] ? new Date(entryObject['moment']) : null;
     const startTime = entryObject['duration'] ? new Date(entryObject['duration']['startTime']) : null;
-    const endTime = entryObject['duration'] ? new Date(entryObject['duration']['startTime']) : null;
+    const endTime = entryObject['duration'] ? new Date(entryObject['duration']['endTime']) : null;
 
-    return(
-        <View style={styles.entry}>
-            <View style={styles.entryTime}>
+    try {
+        return(
+            <View style={styles.entry}>
+                <View style={styles.entryTime}>
+                    <Text>
+                        {entryObject['moment'] ? `${moment.toLocaleDateString()}` : `${endTime.toLocaleDateString('')}`}
+                    </Text>
+                    <Text style={{fontWeight: 'bold'}}>
+                        {entryObject['moment'] ? `${moment.toLocaleTimeString()}` : `${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()}`}
+                    </Text>
+                </View>
+                <View  style={{width: 100}}>
+                    <Text>
+                        {paramName}
+                    </Text>
+                </View>
+                <View  style={{width: 80}}>
+                    <Text>
+                        {entryValue}
+                    </Text>
+                </View>
+            </View>
+        )
+    }
+
+    catch {
+        return(
+            <View style={styles.entry}>
                 <Text>
-                    {entryObject['moment'] ? `${moment.toLocaleDateString()} ${moment.toLocaleTimeString()}` : `${endTime.toLocaleDateString()} ${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()}`}
+                    Ты где-то накосячил, поэтому запись не отображается
                 </Text>
             </View>
-            <View  style={{width: 100}}>
-                <Text>
-                    {paramName}
-                </Text>
-            </View>
-            <View  style={{width: 80}}>
-                <Text>
-                    {entryValue}
-                </Text>
-            </View>
-        </View>
-    )
+        )
+    } 
 }
 
 const styles = StyleSheet.create({
