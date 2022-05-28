@@ -42,11 +42,15 @@ const ParamListScreen = ( {navigation} ) => {
             <Text style={styles.label}>Click on param to add new value:</Text>
             <View style={styles.row}>
                 {Object.keys(paramList).map(key => {
+
+                    //don't show child params
+                    if(paramList[key]['parentId']) return null;
+
                     return(
                     <TouchableOpacity
                         key={key}
                         style={styles.paramItem}
-                        onPress={() => navigation.navigate('AddNote', { paramId: key })} >
+                        onPress={() => navigation.navigate('AddNote', { paramId: key, isChild: false })} >
                         <Text>{paramList[key]['name']}</Text>
                     </TouchableOpacity>
                 )})}

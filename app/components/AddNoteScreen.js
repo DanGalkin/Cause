@@ -6,6 +6,7 @@ import {
     StyleSheet,
     Button,
     TextInput,
+    ScrollView,
 } from 'react-native';
 
 import database from '@react-native-firebase/database';
@@ -13,11 +14,12 @@ import DatePicker from 'react-native-date-picker';
 
 import { UserIdContext } from './Contexts.js';
 import SelectionButtons from '../utilities/SelectionButtons.js';
+import { CommonActions } from '@react-navigation/native';
 
 const AddNoteScreen = ({ route, navigation }) => {
     
 
-    const { paramId } = route.params;
+    const { paramId, isChild } = route.params;
     const userId = useContext(UserIdContext);
 
     const [param, setParam] = useState();
@@ -25,6 +27,7 @@ const AddNoteScreen = ({ route, navigation }) => {
     const [submitButtonDisabled, setSubmitButtonDisabled] = useState(false);
     const [pickedTime, setPickedTime] = useState();
     const [noteValue, setNoteValue] = useState({'value': true});
+    const [childrenSubmitted, setChildrenSubmitted] = useState({});
 
     const updateParamProps = () => {
         database()
@@ -40,20 +43,79 @@ const AddNoteScreen = ({ route, navigation }) => {
         updateParamProps();
     }, []);
 
+    useEffect(() => {
+
+        if(!param) return;
+
+        console.log('debug updating childs time');
+        console.log(`param is: ${JSON.stringify(param)}`);
+        console.log(`parentTime is: ${JSON.stringify(route.params.parentTime)}`)
+        console.log(`durInheritance is: ${JSON.stringify(param['durationInheritance'])}`);
+
+        if(isChild && !param['durationInheritance']) {
+            setPickedTime(route.params.parentTime);
+            console.log(`picked time is 1 option: ${JSON.stringify(route.params.parentTime)}`) //DEBUG
+        }
+
+        if(isChild && param['durationInheritance'] === 'start') {
+            setPickedTime({'moment': route.params.parentTime['duration']['startTime']})
+            console.log(`picked time is 2 option: ${JSON.stringify({'moment': route.params.parentTime['duration']['startTime']})}`) //DEBUG
+        }
+
+        if(isChild && param['durationInheritance'] === 'end') {
+            setPickedTime({'moment': route.params.parentTime['duration']['endTime']})
+            console.log(`picked time is 3 option: ${JSON.stringify({'moment': route.params.parentTime['duration']['endTime']})}`) //DEBUG
+        }
+    }, [param])
+
+    const setChildItemSubmitted = (childId) => {
+        console.log(`updating submitted children: ${JSON.stringify(childrenSubmitted)}`); //DEBUG
+        console.log(`with this ChildID: ${childId}`); //DEBUG
+
+        setChildrenSubmitted({
+            ...childrenSubmitted,
+            [childId] : true
+        })
+    }
+
     return (
         <View style={{ flex: 1 }}>
             <Text style={styles.label}>
                 Add a new note for <Text style={{fontWeight: 'bold'}}>{param ? param.name : ``}</Text>
             </Text>
+            {/*UI to pick a time*/}
             <TimePicker
                 durationType={param ? param.durationType : null}
+                pickedTime={pickedTime}
                 setPickedTime={setPickedTime}
+                disabled={!param}
             />
-            {/*There is a value input*/}
+            {/*UI to input value*/}
+            { // Simple value input
             <NoteValueInput
                 param={param}
                 setNoteValue={setNoteValue}
-            />
+            />}
+            {// Complex input: list of child params to add value of
+            param && param.complexityType === 'complex' &&
+                <ScrollView>
+                    <View style={{flexDirection: 'row', marginVertical: 12}}>
+                        {Object.keys(param.children).map(key => {
+                            return(
+                                <TouchableOpacity
+                                    key={key}
+                                    style={[styles.childItem, childrenSubmitted[param.children[key]['paramId']] && styles.submitted]}
+                                    onPress={() => {
+                                        navigation.push('AddNote', {paramId: param.children[key]['paramId'], parentTime: pickedTime, isChild: true, updateChildrenSubmitted: setChildItemSubmitted})
+                                    }}
+                                >
+                                    <Text style={childrenSubmitted[param.children[key]['paramId']] && {color: 'white'}}>{param.children[key]['name']}</Text>
+                                </TouchableOpacity>
+                            )
+                        })}
+                    </View>
+                </ScrollView>
+            }
             {/*Submit button*/}
             <View style={{ flex: 1, flexDirection: 'column-reverse'}}>
                 <View style={{marginBottom: 30}}>
@@ -61,10 +123,11 @@ const AddNoteScreen = ({ route, navigation }) => {
                         title='Submit this note'
                         disabled={submitButtonDisabled}
                         onPress={() => {
-                            console.log('debugging Submit');
-                            console.log(`paramId is: ${paramId}`);
-                            console.log(`pickedTime is: ${JSON.stringify(pickedTime)}`);
-                            console.log(`noteValue is: ${JSON.stringify(noteValue)}`);
+                            console.log('debugging Submit'); // DEBUG
+                            console.log(`paramId is: ${paramId}`); // DEBUG
+                            console.log(`pickedTime is: ${JSON.stringify(pickedTime)}`); // DEBUG
+                            console.log(`noteValue is: ${JSON.stringify(noteValue)}`); // DEBUG
+                            console.log(`isChild: ${JSON.stringify(isChild)}`); // DEBUG
                             setSubmitButtonDisabled(true);
                             const noteObject = {
                                 'paramId' : paramId,
@@ -76,6 +139,11 @@ const AddNoteScreen = ({ route, navigation }) => {
 
                             const newNoteReference = database().ref(`/users/${userId}/data/${Date.now()}`);
                             newNoteReference.set(noteObject);
+
+                            if(isChild) {
+                                route.params.updateChildrenSubmitted(paramId);
+                                navigation.dispatch(CommonActions.goBack());
+                            }
                         }}
                     />
                 </View>
@@ -84,7 +152,9 @@ const AddNoteScreen = ({ route, navigation }) => {
                 <View style={{marginBottom: 30}}>
                     <Button
                         title='Edit this param'
-                        onPress={() => navigation.navigate('EditParam', { param: param, paramId: paramId, isNew: false, refreshOnBack: updateParamProps })}
+                        onPress={() => {
+                            navigation.navigate('EditParam', { param: param, paramId: paramId, isNew: false, refreshOnBack: updateParamProps })
+                        }}
                     />
                 </View>
             </View>
@@ -92,7 +162,11 @@ const AddNoteScreen = ({ route, navigation }) => {
     );
 }
 
-const TimePicker = ({ durationType, setPickedTime }) => {
+// TODO refactor timepicker, so it sets and gets picked time, and don't use it's own state variables to save it
+const TimePicker = ({ durationType, pickedTime, setPickedTime, disabled = false }) => {
+
+    if(disabled) return null;
+
     const fastTimeChoises ={
         'now': 0,
         '5 min ago': 5,
@@ -104,14 +178,10 @@ const TimePicker = ({ durationType, setPickedTime }) => {
     const [pickModalStartOpen, setPickModalStartOpen] = useState(false);
     const [pickModalEndOpen, setPickModalEndOpen] = useState(false);
     const [pickModalOpen, setPickModalOpen] = useState(false);
-    const [selectedMomentTime, setSelectedMomentTime] = useState(new Date(Date.now()));
-    const [selectedStartTime, setSelectedStartTime] = useState();
-    const [selectedEndTime, setSelectedEndTime] = useState();
 
     //changes a time after button selection
     useEffect(() => {
-        if(fastTimeChoise) {
-            setSelectedMomentTime(new Date(Date.now() - 60000 * fastTimeChoises[fastTimeChoise]));
+        if(fastTimeChoise && durationType === 'moment') {
             setPickedTime({'moment': (new Date(Date.now() - 60000 * fastTimeChoises[fastTimeChoise])).valueOf()});
         }
     }, [fastTimeChoise]);
@@ -120,7 +190,16 @@ const TimePicker = ({ durationType, setPickedTime }) => {
     if (!durationType) return null;
 
     //the case when we input time for the moment
-    if (durationType === 'moment') {
+    if (durationType === 'moment' && !pickedTime) {
+        console.log(`setting duration pickedTime to null`) //DEBUG
+        const nowTime = new Date(Date.now());
+        setPickedTime({'moment': nowTime.valueOf()});
+        return null;
+    }
+
+    if (durationType === 'moment' && pickedTime) {
+        const displayPickedTime = new Date(pickedTime['moment']);
+
         return (
             <View>
                 <Text style={styles.label}>
@@ -138,7 +217,7 @@ const TimePicker = ({ durationType, setPickedTime }) => {
                     >
                         <Text>
                             <Text style={styles.time}>
-                                {selectedMomentTime.toLocaleTimeString()}
+                                {displayPickedTime.toLocaleTimeString()}
                             </Text>   (Click to edit)
                         </Text>
                     </TouchableOpacity>
@@ -147,7 +226,6 @@ const TimePicker = ({ durationType, setPickedTime }) => {
                         open={pickModalOpen}
                         date={new Date()}
                         onConfirm={(date) => {
-                            setSelectedMomentTime(date)
                             setPickModalOpen(false)
                             setFastTimeChoise(null)
                             setPickedTime({'moment': date.valueOf()})
@@ -162,7 +240,24 @@ const TimePicker = ({ durationType, setPickedTime }) => {
     }
 
     //the case when we input time for the moment
-    if (durationType === 'duration') {
+    
+    if (durationType === 'duration' && !pickedTime) {
+        console.log(`setting duration pickedTime to null`) //DEBUG
+        setPickedTime({
+            'duration': {
+                'startTime': null,
+                'endTime': null
+            }
+        })
+        
+        return null;
+    }
+    
+    if (durationType === 'duration' && pickedTime) {
+
+        const displayStartTime = pickedTime['duration']['startTime'] ? new Date(pickedTime['duration']['startTime']) : null;
+        const displayEndTime = pickedTime['duration']['endTime'] ? new Date(pickedTime['duration']['endTime']) : null;
+
         return (
             <View>
                 <Text style={styles.label}>
@@ -177,7 +272,7 @@ const TimePicker = ({ durationType, setPickedTime }) => {
                     >
                         <Text>
                             <Text style={styles.time}>
-                                {selectedStartTime ? selectedStartTime.toLocaleTimeString() : `START TIME`}
+                                {displayStartTime ? displayStartTime.toLocaleTimeString() : `START TIME`}
                             </Text>   (Click to edit)
                         </Text>
                     </TouchableOpacity>
@@ -187,11 +282,12 @@ const TimePicker = ({ durationType, setPickedTime }) => {
                         date={new Date()}
                         onConfirm={(date) => {
                             setPickModalStartOpen(false);
-                            setSelectedStartTime(date);
-                            setPickedTime({'duration': {
-                                'startTime': date.valueOf(),
-                                'endTime': selectedEndTime ? selectedEndTime.valueOf() : null
-                            }});
+                            setPickedTime({
+                                'duration':{
+                                    ...pickedTime['duration'],
+                                    'startTime': date.valueOf()
+                                }
+                            });
                         }}
                         onCancel={() => {
                             setPickModalStartOpen(false)
@@ -208,7 +304,7 @@ const TimePicker = ({ durationType, setPickedTime }) => {
                     >
                         <Text>
                             <Text style={styles.time}>
-                                {selectedEndTime ? selectedEndTime.toLocaleTimeString() : `END TIME`}
+                                {displayEndTime ? displayEndTime.toLocaleTimeString() : `END TIME`}
                             </Text>   (Click to edit)
                         </Text>
                     </TouchableOpacity>
@@ -218,11 +314,12 @@ const TimePicker = ({ durationType, setPickedTime }) => {
                         date={new Date()}
                         onConfirm={(date) => {
                             setPickModalEndOpen(false);
-                            setSelectedEndTime(date);
-                            setPickedTime({'duration': {
-                                'startTime': selectedStartTime ? selectedStartTime.valueOf() : null,
-                                'endTime': date.valueOf()
-                            }});
+                            setPickedTime({
+                                'duration':{
+                                    ...pickedTime['duration'],
+                                    'endTime': date.valueOf()
+                                }
+                            });
                         }}
                         onCancel={() => {
                             setPickModalEndOpen(false)
@@ -240,6 +337,8 @@ const NoteValueInput = ({ param, setNoteValue }) => {
     
     //if we don't know yet the param props, NoteValueInput can't know what to display
     if(!param) return null;
+
+    if(param && param.complexityType !== 'simple') return null;
 
     //the case for boolean value
     if(param.valueType === 'boolean') return (
@@ -280,6 +379,34 @@ const NoteValueInput = ({ param, setNoteValue }) => {
     )
 }
 
+const ComplexParamInput = ({ param, parentTime, navigation }) => {
+    if(!param) return null;
+
+    if(param && param.complexityType !== 'complex') return null;
+
+    const children = param.children;
+
+    return(
+        <ScrollView>
+            <View style={{flexDirection: 'row', marginVertical: 12}}>
+                {Object.keys(children).map(key => {
+                    return(
+                        <TouchableOpacity
+                            key={key}
+                            style={styles.childItem}
+                            onPress={() => {
+                                navigation.navigate('AddNote', {paramId: children[key]['paramId'], parentTime: parentTime})
+                            }}
+                        >
+                            <Text>{children[key]['name']}</Text>
+                        </TouchableOpacity>
+                    )
+                })}
+            </View>
+        </ScrollView>
+    )
+}
+
 const styles = StyleSheet.create({
     label: {
         padding: 10,
@@ -295,6 +422,20 @@ const styles = StyleSheet.create({
         margin: 12,
         padding: 10
     },
+    childItem: {
+        borderRadius: 4,
+        borderColor: 'orange',
+        borderWidth: 1,
+        padding: 5,
+        marginHorizontal: '1%',
+        marginVertical: 10,
+        flexDirection: 'row',
+    },
+    submitted: {
+        backgroundColor: 'green',
+        borderColor: 'green',
+        borderWidth: 1,
+    }
 })
 
 export default AddNoteScreen;
