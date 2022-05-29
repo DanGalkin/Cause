@@ -149,7 +149,7 @@ const AddNoteScreen = ({ route, navigation }) => {
 
                             console.log(`noteObject is: ${JSON.stringify(noteObject)}`);
 
-                            const newNoteReference = database().ref(`/users/${userId}/data/${Date.now()}`);
+                            const newNoteReference = database().ref(`/users/${userId}/data/${Date.now().valueOf()}`);
                             newNoteReference.set(noteObject);
 
                             if(isChild) {

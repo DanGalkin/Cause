@@ -24,7 +24,17 @@ const DisplayScreen = ( { navigation } ) => {
             .ref(`/users/${userId}/data`)
             .once('value')
             .then(snapshot => {
-                setUserEntries(snapshot.val());
+
+                //order by time of note
+                const unorderedEntries = snapshot.val();
+                const orderedEntries = Object.keys(unorderedEntries).sort((a, b) => parseInt(b) - parseInt(a)).reduce(
+                    (obj, key) => { 
+                      obj[key] = unorderedEntries[key]; 
+                      return obj;
+                    }, 
+                    {}
+                );
+                setUserEntries(orderedEntries);
                 });
     }, []);
 
@@ -63,7 +73,7 @@ const DisplayScreen = ( { navigation } ) => {
                 <View style={{ marginBottom: 30 }}>
                     <Button
                         title='Copy your data in JSON to clipboard'
-                        onPress={() => Clipboard.setString(JSON.stringify(userEntries))}
+                        onPress={() => Clipboard.setString(JSON.stringify(userEntries, null, 4))}
                     />
                 </View>
             </View>
