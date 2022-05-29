@@ -20,6 +20,8 @@ const AddNoteScreen = ({ route, navigation }) => {
     
 
     const { paramId, isChild } = route.params;
+    const parentName = route.params.parentName || '';
+
     const userId = useContext(UserIdContext);
 
     const [param, setParam] = useState();
@@ -28,6 +30,7 @@ const AddNoteScreen = ({ route, navigation }) => {
     const [pickedTime, setPickedTime] = useState();
     const [noteValue, setNoteValue] = useState({'value': true});
     const [childrenSubmitted, setChildrenSubmitted] = useState({});
+    const [fullName, setFullName] = useState();
 
     const updateParamProps = () => {
         database()
@@ -51,6 +54,14 @@ const AddNoteScreen = ({ route, navigation }) => {
         console.log(`param is: ${JSON.stringify(param)}`);
         console.log(`parentTime is: ${JSON.stringify(route.params.parentTime)}`)
         console.log(`durInheritance is: ${JSON.stringify(param['durationInheritance'])}`);
+
+        if(!isChild) {
+            setFullName(`${param['name']}`);
+        }
+
+        if(isChild) {
+            setFullName(`${parentName} : ${param['name']}`);
+        }
 
         if(isChild && !param['durationInheritance']) {
             setPickedTime(route.params.parentTime);
@@ -81,7 +92,7 @@ const AddNoteScreen = ({ route, navigation }) => {
     return (  
         <View style={{ flex: 1 }}>
             <Text style={styles.label}>
-                Add a new note for <Text style={{fontWeight: 'bold'}}>{param ? param.name : ``}</Text>
+                Add a new note for <Text style={{fontWeight: 'bold'}}>{fullName || ``}</Text>
             </Text>
             {/*UI to pick a time*/}
             <TimePicker
@@ -106,7 +117,7 @@ const AddNoteScreen = ({ route, navigation }) => {
                                     key={key}
                                     style={[styles.childItem, childrenSubmitted[param.children[key]['paramId']] && styles.submitted]}
                                     onPress={() => {
-                                        navigation.push('AddNote', {paramId: param.children[key]['paramId'], parentTime: pickedTime, isChild: true, updateChildrenSubmitted: setChildItemSubmitted})
+                                        navigation.push('AddNote', {paramId: param.children[key]['paramId'], parentTime: pickedTime, parentName: fullName, isChild: true, updateChildrenSubmitted: setChildItemSubmitted})
                                     }}
                                 >
                                     <Text style={childrenSubmitted[param.children[key]['paramId']] && {color: 'white'}}>{param.children[key]['name']}</Text>
@@ -131,7 +142,7 @@ const AddNoteScreen = ({ route, navigation }) => {
                             setSubmitButtonDisabled(true);
                             const noteObject = {
                                 'paramId' : paramId,
-                                'name': param['name'],
+                                'name': fullName,
                                 ...pickedTime,
                                 ...noteValue
                             };

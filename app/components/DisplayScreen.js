@@ -28,7 +28,7 @@ const DisplayScreen = ( { navigation } ) => {
                 });
     }, []);
 
-    if(!userEntries || !userParams) return(
+    if(!userEntries) return(
         <View style={{ flex: 1 }}>
             <Text>Retrieving data from Database</Text>
             <View style={{ flexDirection: 'column-reverse', marginBottom: 30 }}>
