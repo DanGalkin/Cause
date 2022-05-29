@@ -78,7 +78,7 @@ const AddNoteScreen = ({ route, navigation }) => {
         })
     }
 
-    return (
+    return (  
         <View style={{ flex: 1 }}>
             <Text style={styles.label}>
                 Add a new note for <Text style={{fontWeight: 'bold'}}>{param ? param.name : ``}</Text>
@@ -131,6 +131,7 @@ const AddNoteScreen = ({ route, navigation }) => {
                             setSubmitButtonDisabled(true);
                             const noteObject = {
                                 'paramId' : paramId,
+                                'name': param['name'],
                                 ...pickedTime,
                                 ...noteValue
                             };

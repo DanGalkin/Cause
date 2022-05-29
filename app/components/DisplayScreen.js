@@ -18,7 +18,6 @@ const DisplayScreen = ( { navigation } ) => {
     const userId = React.useContext(UserIdContext);
 
     const [userEntries, setUserEntries] = useState();
-    const [userParams, setUserParams] = useState();
 
     useEffect(() => {
         database()
@@ -26,12 +25,6 @@ const DisplayScreen = ( { navigation } ) => {
             .once('value')
             .then(snapshot => {
                 setUserEntries(snapshot.val());
-                });
-        database()
-            .ref(`/users/${userId}/params`)
-            .once('value')
-            .then(snapshot => {
-                setUserParams(snapshot.val());
                 });
     }, []);
 
@@ -54,7 +47,6 @@ const DisplayScreen = ( { navigation } ) => {
                     return(
                         <DisplayEntry
                             entryObject={userEntries[entry]}
-                            paramObject={userParams[userEntries[entry]['paramId']]}
                             key={entry}
                         />
                     );
@@ -79,9 +71,9 @@ const DisplayScreen = ( { navigation } ) => {
     );
 }
 
-const DisplayEntry = ({ entryObject, paramObject }) => {
+const DisplayEntry = ({ entryObject }) => {
 
-    const paramName = paramObject['name'];
+    const paramName =entryObject['name'];
     const entryValue = entryObject['value'];
     const moment = entryObject['moment'] ? new Date(entryObject['moment']) : null;
     const startTime = entryObject['duration'] ? new Date(entryObject['duration']['startTime']) : null;
