@@ -24,23 +24,24 @@ const DisplayScreen = ( { navigation } ) => {
             .ref(`/users/${userId}/data`)
             .once('value')
             .then(snapshot => {
-
-                //order by time of note
-                const unorderedEntries = snapshot.val();
-                const orderedEntries = Object.keys(unorderedEntries).sort((a, b) => parseInt(b) - parseInt(a)).reduce(
-                    (obj, key) => { 
-                      obj[key] = unorderedEntries[key]; 
-                      return obj;
-                    }, 
-                    {}
-                );
-                setUserEntries(orderedEntries);
+                if(snapshot.val()) {
+                    //order by time of note
+                    const unorderedEntries = snapshot.val();
+                    const orderedEntries = Object.keys(unorderedEntries).sort((a, b) => parseInt(b) - parseInt(a)).reduce(
+                        (obj, key) => { 
+                          obj[key] = unorderedEntries[key]; 
+                          return obj;
+                        }, 
+                        {}
+                    );
+                    setUserEntries(orderedEntries);
+                }
                 });
     }, []);
 
     if(!userEntries) return(
         <View style={{ flex: 1 }}>
-            <Text>Retrieving data from Database</Text>
+            <Text>Retrieving data from Database (or there is no data)</Text>
             <View style={{ flexDirection: 'column-reverse', marginBottom: 30 }}>
                 <Button
                     title='Back to param list'

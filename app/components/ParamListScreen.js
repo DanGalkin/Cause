@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     Button,
+    ScrollView,
 } from 'react-native';
 
 import database from '@react-native-firebase/database';
@@ -39,21 +40,26 @@ const ParamListScreen = ( {navigation} ) => {
     
     return(
         <View style={{ flex: 1 }}>
-            <Text style={styles.label}>Click on param to add new value:</Text>
-            <View style={styles.row}>
-                {Object.keys(paramList).map(key => {
+            <View style={{ flex: 1 }}>
+                {!paramList && <Text style={styles.label}>Wait for DB to synchronize or add new param</Text>}
+                {paramList && <ScrollView>
+                    <Text style={styles.label}>Click on param to add new note:</Text>
+                    <View style={[styles.row]}>
+                        {Object.keys(paramList).map(key => {
 
-                    //don't show child params
-                    if(paramList[key]['parentId']) return null;
+                            //don't show child params
+                            if(paramList[key]['parentId']) return null;
 
-                    return(
-                    <TouchableOpacity
-                        key={key}
-                        style={styles.paramItem}
-                        onPress={() => navigation.navigate('AddNote', { paramId: key, isChild: false })} >
-                        <Text>{paramList[key]['name']}</Text>
-                    </TouchableOpacity>
-                )})}
+                            return(
+                            <TouchableOpacity
+                                key={key}
+                                style={styles.paramItem}
+                                onPress={() => navigation.navigate('AddNote', { paramId: key, isChild: false })} >
+                                <Text>{paramList[key]['name']}</Text>
+                            </TouchableOpacity>
+                        )})}
+                    </View>
+                </ScrollView>}
             </View>
             <View style={{ flex: 1, flexDirection: 'column-reverse'}}>
                 <View style={{ marginBottom: 30 }}>
