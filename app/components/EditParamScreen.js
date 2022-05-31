@@ -23,7 +23,7 @@ const EditParamScreen = ( { route, navigation } ) => {
     const [valueType, setValueType] = useState();
     const [metric, setMetric] = useState();
     const [optionList, setOptionList] = useState();
-    const [children, setChildren] = useState([]);
+    const [children, setChildren] = useState([]); // This must be updated when editing
     const [durationInheritance, setDurationInheritance] = useState();
 
     const [finishButtonDisabled, setFinishButtonDisabled] = useState(false);
@@ -57,7 +57,13 @@ const EditParamScreen = ( { route, navigation } ) => {
             setMetric(paramToEdit.metric ? paramToEdit.metric : null);
             setOptionList(paramToEdit.optionList ? paramToEdit.optionList : null);
         }
+
+        if(!isNew && route.params.param.complexityType === 'complex') {
+            setChildren(route.params.param.children || [] );
+        }
     }, [])
+
+
 
     const addChild = (child) => {
         let newChildrenList = [...children, child];
@@ -161,7 +167,7 @@ const EditParamScreen = ( { route, navigation } ) => {
                         //go to creating a new child param with additional info
                         navigation.push('EditParam',
                             {isChild: true,
-                            parentId: newParamReference.key,
+                            parentId: isNew ? newParamReference.key : route.params.paramId,
                             parentDurationType: durationType,
                             isNew: true,
                             addAsChildToParent: addChild})
@@ -202,8 +208,10 @@ const EditParamScreen = ( { route, navigation } ) => {
 
                         //save to existing param if it's editing
                         if(!isNew) {
-                            database().ref(`/users/${userId}/params/${route.params.paramId}`).set(paramObject);
-                            route.params.refreshOnBack();
+                            database()
+                                .ref(`/users/${userId}/params/${route.params.paramId}`)
+                                .set(paramObject)
+                                .then(() => route.params.refreshOnBack());
                             navigation.dispatch(CommonActions.goBack());
                             //TODO: Deal with the warning: "Non-serializable values were found in the navigation state"
                         }
