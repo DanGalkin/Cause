@@ -146,7 +146,7 @@ const EditParamScreen = ( { route, navigation } ) => {
             }
             { // show param adder if the param is complex
             (complexityType === 'complex') &&
-            <View style={{flexDirection: 'row', marginVertical: 12}}>
+            <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
                 {Object.keys(children).map(key => {
                     return(
                     <TouchableOpacity

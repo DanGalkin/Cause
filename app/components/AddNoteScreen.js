@@ -110,7 +110,7 @@ const AddNoteScreen = ({ route, navigation }) => {
             {// Complex input: list of child params to add value of
             param && param.complexityType === 'complex' &&
                 <ScrollView>
-                    <View style={{flexDirection: 'row', marginVertical: 12}}>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
                         {Object.keys(param.children).map(key => {
                             return(
                                 <TouchableOpacity
