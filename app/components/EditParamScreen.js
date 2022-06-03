@@ -25,6 +25,7 @@ const EditParamScreen = ( { route, navigation } ) => {
     const [optionList, setOptionList] = useState();
     const [children, setChildren] = useState([]); // This must be updated when editing
     const [durationInheritance, setDurationInheritance] = useState();
+    const [parentId, setParentId] = useState();
 
     const [finishButtonDisabled, setFinishButtonDisabled] = useState(false);
     const [newParamReference, setNewParamReference] = useState();
@@ -36,26 +37,35 @@ const EditParamScreen = ( { route, navigation } ) => {
 
     
     useEffect(() => {
+        const paramToEdit = route.params.param;
+        
         if(isNew) {
             //create a new entry in DB and get the new paramId to use it later
             const newParamReference = database().ref(`/users/${userId}/params`).push();
             setNewParamReference(newParamReference);
         }
 
+        if(isNew && isChild) {
+            setParentId(route.params.parentId);
+        }
+
         if(isChild && route.params.parentDurationType === 'moment') {
             setDurationType('moment');
         }
 
+        //if editing existing param, set values of this param
         if(!isNew) {
-            //if editing existing param, set values of this param
-            const paramToEdit = route.params.param;
-
+            
             setParamName(paramToEdit.name);
             setDurationType(paramToEdit.durationType);
             setComplexityType(paramToEdit.complexityType);
             setValueType(paramToEdit.valueType);
             setMetric(paramToEdit.metric ? paramToEdit.metric : null);
             setOptionList(paramToEdit.optionList ? paramToEdit.optionList : null);
+        }
+
+        if(!isNew && isChild) {
+            setParentId(paramToEdit.parentId);
         }
 
         if(!isNew && route.params.param.complexityType === 'complex') {
@@ -192,7 +202,7 @@ const EditParamScreen = ( { route, navigation } ) => {
                         paramObject['metric'] = metric;
                         paramObject['optionList'] = optionList;
                         paramObject['children'] = children;
-                        paramObject['parentId'] = isChild ? route.params.parentId : null;
+                        paramObject['parentId'] = parentId;
                         paramObject['durationInheritance'] = durationInheritance;
 
                         if(isNew && !isChild) {
