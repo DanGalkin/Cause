@@ -42,7 +42,7 @@ const ParamListScreen = ( {navigation} ) => {
         <View style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
                 {!paramList && <Text style={styles.label}>Wait for DB to synchronize or add new param</Text>}
-                {paramList && <ScrollView>
+                {paramList && <ScrollView style={{ flex: 1 }}>
                     <Text style={styles.label}>Click on param to add new note:</Text>
                     <View style={[styles.row]}>
                         {Object.keys(paramList).map(key => {
@@ -61,7 +61,7 @@ const ParamListScreen = ( {navigation} ) => {
                     </View>
                 </ScrollView>}
             </View>
-            <View style={{ flex: 1, flexDirection: 'column-reverse'}}>
+            <View style={{ flexDirection: 'column-reverse'}}>
                 <View style={{ marginBottom: 30 }}>
                     <Button
                         title='View recorded entries'
