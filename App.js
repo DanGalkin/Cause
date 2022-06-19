@@ -22,6 +22,8 @@ import EditParamScreen from './app/components/EditParamScreen';
 import DisplayScreen from './app/components/DisplayScreen';
 import { UserIdContext } from './app/components/Contexts.js';
 
+import {version} from './package.json';
+
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -82,6 +84,7 @@ const App = () => {
     <SafeAreaView style={{flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.centered}>
         <View style={styles.centered}>
+          <Text>This is Cause app version: {version}</Text>
           <Text>Please, sign-in:</Text>
           <GoogleSigninButton
             style={{ width: 350, height: 48 }}
