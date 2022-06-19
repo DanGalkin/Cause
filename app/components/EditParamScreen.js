@@ -66,6 +66,7 @@ const EditParamScreen = ( { route, navigation } ) => {
 
         if(!isNew && isChild) {
             setParentId(paramToEdit.parentId);
+            setDurationInheritance(paramToEdit.durationInheritance);
         }
 
         if(!isNew && route.params.param.complexityType === 'complex') {
