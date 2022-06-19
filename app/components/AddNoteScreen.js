@@ -165,7 +165,7 @@ const AddNoteScreen = ({ route, navigation }) => {
                     <Button
                         title='Edit this param'
                         onPress={() => {
-                            navigation.navigate('EditParam', { param: param, paramId: paramId, isNew: false, refreshOnBack: updateParamProps })
+                            navigation.navigate('EditParam', { param: param, paramId: paramId, isNew: false, isChild : param['parentId'] ? true : false,  refreshOnBack: updateParamProps })
                         }}
                     />
                 </View>
