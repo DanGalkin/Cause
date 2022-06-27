@@ -19,7 +19,7 @@ import { CommonActions } from '@react-navigation/native';
 const AddNoteScreen = ({ route, navigation }) => {
     
 
-    const { paramId, isChild } = route.params;
+    const { paramId, isChild, processId, process } = route.params;
     const parentName = route.params.parentName || '';
 
     const userId = useContext(UserIdContext);
@@ -41,6 +41,28 @@ const AddNoteScreen = ({ route, navigation }) => {
             });
     }
 
+    const startProcess = () => {
+        if(!param) return null;
+        
+        const timeStarted = new Date(Date.now()).valueOf();
+        const processObject = {
+            paramId,
+            paramName: fullName,
+            timeStarted,
+        }
+        
+        const newProcessReference = database().ref(`/users/${userId}/processes`).push();
+        newProcessReference.set(processObject);
+
+        navigation.dispatch(CommonActions.goBack());
+    }
+
+    //TODO Doubling functon with ParamListScreen - refactor
+    const killProcess = (processId) => {
+        const killProcessReference = database().ref(`/users/${userId}/processes/${processId}`);
+        killProcessReference.remove();
+    }
+
     //get the param props from the DB on load
     useEffect(() => {
         updateParamProps();
@@ -57,6 +79,11 @@ const AddNoteScreen = ({ route, navigation }) => {
 
         if(!isChild) {
             setFullName(`${param['name']}`);
+        }
+
+        if(process) {
+            const newEndTime = new Date(Date.now());
+            setPickedTime({'duration': {'startTime': process['timeStarted'], 'endTime': newEndTime.valueOf()}});
         }
 
         if(isChild) {
@@ -94,6 +121,15 @@ const AddNoteScreen = ({ route, navigation }) => {
             <Text style={styles.label}>
                 Add a new note for <Text style={{fontWeight: 'bold'}}>{fullName || ``}</Text>
             </Text>
+            {/*Button to start a duration process*/}
+            {!isChild && !process && param && param['durationType'] === 'duration' &&
+            <View style={{flexWrap: 'wrap', flexDirection: 'row'}}>
+                <TouchableOpacity
+                    style={styles.processButton}
+                    onPress={() => startProcess()}>
+                    <Text>⏳ Start a process ⏳</Text>
+                </TouchableOpacity>
+            </View>}
             {/*UI to pick a time*/}
             <TimePicker
                 durationType={param ? param.durationType : null}
@@ -151,6 +187,10 @@ const AddNoteScreen = ({ route, navigation }) => {
 
                             const newNoteReference = database().ref(`/users/${userId}/data/${Date.now().valueOf()}`);
                             newNoteReference.set(noteObject);
+
+                            if(process) {
+                                killProcess(processId);
+                            }
 
                             if(isChild) {
                                 route.params.updateChildrenSubmitted(paramId);
@@ -442,6 +482,14 @@ const styles = StyleSheet.create({
         marginHorizontal: '1%',
         marginVertical: 10,
         flexDirection: 'row',
+    },
+    processButton: {
+        borderRadius: 4,
+        borderColor: 'green',
+        borderWidth: 1,
+        padding: 5,
+        marginVertical: 10,
+        marginHorizontal: '1%',
     },
     submitted: {
         backgroundColor: 'green',

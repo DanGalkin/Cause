@@ -13,18 +13,49 @@ import { UserIdContext } from './Contexts.js';
 
 const ParamListScreen = ( {navigation} ) => {   
     const [paramList, setParamsList] = useState([]);
+    const [processList, setProcessList] = useState([]);
 
     const userId = useContext(UserIdContext);
 
-    //fetch param data on load once
-    useEffect(() => {
+    const updateParamData = () => {
         database()
             .ref(`/users/${userId}/params`)
             .once('value')
             .then(snapshot => {
                 setParamsList(snapshot.val());
                 });
+
+        database()
+            .ref(`/users/${userId}/processes`)
+            .once('value')
+            .then(snapshot => {
+                setProcessList(snapshot.val());
+                });
+    }
+
+    //fetch param data on load and refresh on focus
+    useEffect(() => {
+        updateParamData();
+
+        const willFocusSubscription = navigation.addListener('focus', () => {
+            updateParamData();
+        })
+
+        return willFocusSubscription;
     }, []);
+
+    //Set a listener for DB changes and update
+    useEffect(() => {
+        const onUserDataChange = database()
+            .ref(`/users/${userId}`)
+            .on('value', () => {
+                updateParamData();
+            });
+
+        return () => database().ref(`/users/${userId}`).off('value', onUserDataChange);
+    }, [userId])
+
+
 
     //subscribe for listening DB changes
     useEffect(() => {
@@ -36,7 +67,13 @@ const ParamListScreen = ( {navigation} ) => {
     
         // Stop listening for updates when no longer required
         return () => database().ref(`/users/${userId}/params`).off('value', onValueChange);
-      }, [userId]);
+    }, [userId]);
+
+    //TODO Doubling functon with AddNoteScreen - refactor
+    const killProcess = (processId) => {
+        const killProcessReference = database().ref(`/users/${userId}/processes/${processId}`);
+        killProcessReference.remove();
+    }
     
     return(
         <View style={{ flex: 1 }}>
@@ -55,7 +92,7 @@ const ParamListScreen = ( {navigation} ) => {
                                 key={key}
                                 style={styles.paramItem}
                                 onPress={() => navigation.navigate('AddNote', { paramId: key, isChild: false })} >
-                                <Text>{paramList[key]['name']}</Text>
+                                <Text>{paramList[key]['name']}{paramList[key]['durationType'] === 'duration' ? ' 🕒' : ''}</Text>
                             </TouchableOpacity>
                         )})}
                     </View>
@@ -72,6 +109,36 @@ const ParamListScreen = ( {navigation} ) => {
                         title='Add new param'
                         onPress={() => navigation.navigate('EditParam', {isNew: true, isChild: false})} />
                 </View>
+                {/* List of live processes */}
+                { processList &&
+                <View style={{ marginVertical: 15 }}>
+                    <Text style={styles.label}>⏳ Live processes:</Text>
+                    <View style={styles.row}>
+                            {Object.keys(processList).map(key => {
+                                const timeStarted = new Date(processList[key]['timeStarted']);
+                                
+                                return(
+                                    <View style={styles.processItem}>
+                                        <TouchableOpacity
+                                            key={key}
+                                            style={{marginRight: 10 }}
+                                            onPress={() => {
+                                                navigation.push('AddNote', {paramId: processList[key]['paramId'], processId: key, process: processList[key] /*isChild: true, */})
+                                            }}>
+                                            <Text>{processList[key]['paramName']}: {timeStarted.toLocaleTimeString()}</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            key={key+'0'}
+                                            onPress={() => {
+                                                killProcess(key);
+                                            }}>
+                                            <Text style={{color: 'red'}}>X</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )
+                            })}
+                    </View>
+                </View> }
             </View>
         </View>
     );
@@ -84,6 +151,15 @@ const styles = StyleSheet.create({
     paramItem: {
         borderRadius: 4,
         borderColor: 'orange',
+        borderWidth: 1,
+        padding: 5,
+        marginHorizontal: '1%',
+        marginVertical: 10,
+        flexDirection: 'row',
+    },
+    processItem: {
+        borderRadius: 4,
+        borderColor: 'darkmagenta',
         borderWidth: 1,
         padding: 5,
         marginHorizontal: '1%',
