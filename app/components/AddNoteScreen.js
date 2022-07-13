@@ -145,7 +145,7 @@ const AddNoteScreen = ({ route, navigation }) => {
             />}
             {// Complex input: list of child params to add value of
             param && param.complexityType === 'complex' &&
-                <ScrollView>
+                <ScrollView style={{flex: 1}}>
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
                         {Object.keys(param.children).map(key => {
                             return(
@@ -164,7 +164,7 @@ const AddNoteScreen = ({ route, navigation }) => {
                 </ScrollView>
             }
             {/*Submit button*/}
-            <View style={{ flex: 1, flexDirection: 'column-reverse'}}>
+            <View style={{ flexDirection: 'column-reverse' }}>
                 <View style={{marginBottom: 30}}>
                     <Button
                         title='Submit this note'

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Text,
     View,
+    ScrollView,
     StyleSheet,
     TextInput,
     Button,
@@ -163,31 +164,33 @@ const EditParamScreen = ( { route, navigation } ) => {
             }
             { // show param adder if the param is complex
             (complexityType === 'complex') &&
-            <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
-                {Object.keys(children).map(key => {
-                    return(
+            <ScrollView style={{flex: 1}}>
+                <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
+                    {Object.keys(children).map(key => {
+                        return(
+                        <TouchableOpacity
+                            key={key}
+                            style={styles.paramItem}
+                        >
+                            <Text>{children[key]['name']}</Text>
+                        </TouchableOpacity>
+                    )})}
                     <TouchableOpacity
-                        key={key}
-                        style={styles.paramItem}
+                        onPress={() => {
+                            //go to creating a new child param with additional info
+                            navigation.push('EditParam',
+                                {isChild: true,
+                                parentId: isNew ? newParamReference.key : route.params.paramId,
+                                parentDurationType: durationType,
+                                isNew: true,
+                                addAsChildToParent: addChild})
+                        }}
+                        style={styles.button}
                     >
-                        <Text>{children[key]['name']}</Text>
+                    <Text>+ Add child</Text>
                     </TouchableOpacity>
-                )})}
-                <TouchableOpacity
-                    onPress={() => {
-                        //go to creating a new child param with additional info
-                        navigation.push('EditParam',
-                            {isChild: true,
-                            parentId: isNew ? newParamReference.key : route.params.paramId,
-                            parentDurationType: durationType,
-                            isNew: true,
-                            addAsChildToParent: addChild})
-                    }}
-                    style={styles.button}
-                >
-                   <Text>+ Add child</Text>
-                </TouchableOpacity>
-            </View>
+                </View>
+            </ScrollView>
             }
             <View style={{margin: 10}}>
                 <Button
