@@ -386,6 +386,7 @@ const TimePicker = ({ durationType, pickedTime, setPickedTime, disabled = false 
 
 const NoteValueInput = ({ param, setNoteValue }) => {
     const [selectedValue, setSelectedValue] = useState();
+    const [inputQuantity, onInputQuantity] = useState(null);
     
     //if we don't know yet the param props, NoteValueInput can't know what to display
     if(!param) return null;
@@ -406,8 +407,14 @@ const NoteValueInput = ({ param, setNoteValue }) => {
         <View>
             <TextInput
                 style={styles.input}
+                value={inputQuantity}
+                keyboardType='numeric'
                 placeholder={`input the quantity in ${param.metric}`}
-                onChangeText={value => (setNoteValue({'value': value}))}
+                onChangeText={value => {
+                    const clearedValue = value.replace(/[^0-9,.]/g, '');
+                    onInputQuantity(clearedValue);
+                    setNoteValue({'value': parseFloat(clearedValue.replace(',', '.'))})
+                }}
             />
         </View>
     );
