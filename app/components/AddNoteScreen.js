@@ -145,7 +145,7 @@ const AddNoteScreen = ({ route, navigation }) => {
             />}
             {// Complex input: list of child params to add value of
             param && param.complexityType === 'complex' &&
-                <ScrollView>
+                <ScrollView style={{flex: 1}}>
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
                         {Object.keys(param.children).map(key => {
                             return(
@@ -164,7 +164,7 @@ const AddNoteScreen = ({ route, navigation }) => {
                 </ScrollView>
             }
             {/*Submit button*/}
-            <View style={{ flex: 1, flexDirection: 'column-reverse'}}>
+            <View style={{ flexDirection: 'column-reverse' }}>
                 <View style={{marginBottom: 30}}>
                     <Button
                         title='Submit this note'
@@ -386,6 +386,7 @@ const TimePicker = ({ durationType, pickedTime, setPickedTime, disabled = false 
 
 const NoteValueInput = ({ param, setNoteValue }) => {
     const [selectedValue, setSelectedValue] = useState();
+    const [inputQuantity, onInputQuantity] = useState(null);
     
     //if we don't know yet the param props, NoteValueInput can't know what to display
     if(!param) return null;
@@ -406,8 +407,14 @@ const NoteValueInput = ({ param, setNoteValue }) => {
         <View>
             <TextInput
                 style={styles.input}
+                value={inputQuantity}
+                keyboardType='numeric'
                 placeholder={`input the quantity in ${param.metric}`}
-                onChangeText={value => (setNoteValue({'value': value}))}
+                onChangeText={value => {
+                    const clearedValue = value.replace(/[^0-9,.]/g, '');
+                    onInputQuantity(clearedValue);
+                    setNoteValue({'value': parseFloat(clearedValue.replace(',', '.'))})
+                }}
             />
         </View>
     );
