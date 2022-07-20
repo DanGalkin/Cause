@@ -101,6 +101,11 @@ const ParamListScreen = ( {navigation} ) => {
             <View style={{ flexDirection: 'column-reverse'}}>
                 <View style={{ marginBottom: 30 }}>
                     <Button
+                        title='Show Charts'
+                        onPress={() => navigation.navigate('Charts')} />
+                </View>
+                <View style={{ marginBottom: 30 }}>
+                    <Button
                         title='View recorded entries'
                         onPress={() => navigation.navigate('Display')} />
                 </View>

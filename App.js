@@ -20,6 +20,8 @@ import ParamListScreen from './app/components/ParamListScreen';
 import AddNoteScreen from './app/components/AddNoteScreen';
 import EditParamScreen from './app/components/EditParamScreen';
 import DisplayScreen from './app/components/DisplayScreen';
+import ChartsScreen from './app/components/ChartsScreen';
+import ParamSelectorScreen from './app/components/ParamSelectorScreen';
 import { UserIdContext } from './app/components/Contexts.js';
 
 import {version} from './package.json';
@@ -110,6 +112,8 @@ const App = () => {
               <Stack.Screen name='EditParam' component={EditParamScreen} />
               <Stack.Screen name='AddNote' component={AddNoteScreen} />
               <Stack.Screen name='Display' component={DisplayScreen} />
+              <Stack.Screen name='Charts' component={ChartsScreen} />
+              <Stack.Screen name='ParamSelector' component={ParamSelectorScreen} />
             </Stack.Navigator>
           </UserIdContext.Provider>
         </NavigationContainer>
