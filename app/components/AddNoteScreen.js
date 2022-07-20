@@ -118,51 +118,53 @@ const AddNoteScreen = ({ route, navigation }) => {
 
     return (  
         <View style={{ flex: 1 }}>
-            <Text style={styles.label}>
-                Add a new note for <Text style={{fontWeight: 'bold'}}>{fullName || ``}</Text>
-            </Text>
-            {/*Button to start a duration process*/}
-            {!isChild && !process && param && param['durationType'] === 'duration' &&
-            <View style={{flexWrap: 'wrap', flexDirection: 'row'}}>
-                <TouchableOpacity
-                    style={styles.processButton}
-                    onPress={() => startProcess()}>
-                    <Text>⏳ Start a process ⏳</Text>
-                </TouchableOpacity>
-            </View>}
-            {/*UI to pick a time*/}
-            <TimePicker
-                durationType={param ? param.durationType : null}
-                pickedTime={pickedTime}
-                setPickedTime={setPickedTime}
-                disabled={!param}
-            />
-            {/*UI to input value*/}
-            { // Simple value input
-            <NoteValueInput
-                param={param}
-                setNoteValue={setNoteValue}
-            />}
-            {// Complex input: list of child params to add value of
-            param && param.complexityType === 'complex' &&
-                <ScrollView style={{flex: 1}}>
-                    <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
-                        {Object.keys(param.children).map(key => {
-                            return(
-                                <TouchableOpacity
-                                    key={key}
-                                    style={[styles.childItem, childrenSubmitted[param.children[key]['paramId']] && styles.submitted]}
-                                    onPress={() => {
-                                        navigation.push('AddNote', {paramId: param.children[key]['paramId'], parentTime: pickedTime, parentName: fullName, isChild: true, updateChildrenSubmitted: setChildItemSubmitted})
-                                    }}
-                                >
-                                    <Text style={childrenSubmitted[param.children[key]['paramId']] && {color: 'white'}}>{param.children[key]['name']}</Text>
-                                </TouchableOpacity>
-                            )
-                        })}
-                    </View>
-                </ScrollView>
-            }
+            <View style={{ flex: 1 }}>
+                <Text style={styles.label}>
+                    Add a new note for <Text style={{fontWeight: 'bold'}}>{fullName || ``}</Text>
+                </Text>
+                {/*Button to start a duration process*/}
+                {!isChild && !process && param && param['durationType'] === 'duration' &&
+                <View style={{flexWrap: 'wrap', flexDirection: 'row'}}>
+                    <TouchableOpacity
+                        style={styles.processButton}
+                        onPress={() => startProcess()}>
+                        <Text>⏳ Start a process ⏳</Text>
+                    </TouchableOpacity>
+                </View>}
+                {/*UI to pick a time*/}
+                <TimePicker
+                    durationType={param ? param.durationType : null}
+                    pickedTime={pickedTime}
+                    setPickedTime={setPickedTime}
+                    disabled={!param}
+                />
+                {/*UI to input value*/}
+                { // Simple value input
+                <NoteValueInput
+                    param={param}
+                    setNoteValue={setNoteValue}
+                />}
+                {// Complex input: list of child params to add value of
+                param && param.complexityType === 'complex' &&
+                    <ScrollView style={{flex: 1}}>
+                        <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
+                            {Object.keys(param.children).map(key => {
+                                return(
+                                    <TouchableOpacity
+                                        key={key}
+                                        style={[styles.childItem, childrenSubmitted[param.children[key]['paramId']] && styles.submitted]}
+                                        onPress={() => {
+                                            navigation.push('AddNote', {paramId: param.children[key]['paramId'], parentTime: pickedTime, parentName: fullName, isChild: true, updateChildrenSubmitted: setChildItemSubmitted})
+                                        }}
+                                    >
+                                        <Text style={childrenSubmitted[param.children[key]['paramId']] && {color: 'white'}}>{param.children[key]['name']}</Text>
+                                    </TouchableOpacity>
+                                )
+                            })}
+                        </View>
+                    </ScrollView>
+                }
+            </View>
             {/*Submit button*/}
             <View style={{ flexDirection: 'column-reverse' }}>
                 <View style={{marginBottom: 30}}>

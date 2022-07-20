@@ -84,153 +84,157 @@ const EditParamScreen = ( { route, navigation } ) => {
 
     return(
         <View style={styles.container}>
-            <Text style={styles.label}>{!isNew ? `Edit the param: ${paramName}` : `Create a new param`}</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Name the param"
-                value={paramName || null}
-                onChangeText={value => (setParamName(value))}
-            />
-            
-            { // show duration options if NOT a child param
-            !isChild &&
-            <View>
-                <Text style={styles.label}>Select a DURATION type of a param</Text>
-                <SelectionButtons
-                    values={["moment", "duration"]}
-                    selectedValue={durationType}
-                    setSelectedValue={setDurationType}
+            <View style={{flex:1}}>
+                <Text style={styles.label}>{!isNew ? `Edit the param: ${paramName}` : `Create a new param`}</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Name the param"
+                    value={paramName || null}
+                    onChangeText={value => (setParamName(value))}
                 />
-            </View>}
-
-            { // show duration options if IS a child param
-            // parental durationType is moment => childs is moment too
-            isChild && route.params.parentDurationType === 'moment' && (
-            <View>
-                <Text style={styles.label}>Only Moment is available, because a parent has Moment duration type</Text>
-                <SelectionButtons
-                    values={["moment"]}
-                    selectedValue={durationType}
-                    setSelectedValue={setDurationType}
-                />
-            </View>)}
-            { // show duration options if IS a child param
-            // parental durationType is duration => there are options for a child
-            isChild && route.params.parentDurationType === 'duration' && (
+                
+                { // show duration options if NOT a child param
+                !isChild &&
                 <View>
-                    <Text style={styles.label}>Duration will match parents' duration, for moment there are options</Text>
+                    <Text style={styles.label}>Select a DURATION type of a param</Text>
                     <SelectionButtons
                         values={["moment", "duration"]}
                         selectedValue={durationType}
                         setSelectedValue={setDurationType}
                     />
-                    {durationType === 'moment' &&
+                </View>}
+
+                { // show duration options if IS a child param
+                // parental durationType is moment => childs is moment too
+                isChild && route.params.parentDurationType === 'moment' && (
+                <View>
+                    <Text style={styles.label}>Only Moment is available, because a parent has Moment duration type</Text>
+                    <SelectionButtons
+                        values={["moment"]}
+                        selectedValue={durationType}
+                        setSelectedValue={setDurationType}
+                    />
+                </View>)}
+                { // show duration options if IS a child param
+                // parental durationType is duration => there are options for a child
+                isChild && route.params.parentDurationType === 'duration' && (
                     <View>
-                        <Text style={styles.label}>Moment may match start or end of a parents' duration</Text>
+                        <Text style={styles.label}>Duration will match parents' duration, for moment there are options</Text>
                         <SelectionButtons
-                            values={['start', 'end']}
-                            selectedValue={durationInheritance}
-                            setSelectedValue={setDurationInheritance}
+                            values={["moment", "duration"]}
+                            selectedValue={durationType}
+                            setSelectedValue={setDurationType}
                         />
-                    </View>
-                    }
-                </View>)
-            }
+                        {durationType === 'moment' &&
+                        <View>
+                            <Text style={styles.label}>Moment may match start or end of a parents' duration</Text>
+                            <SelectionButtons
+                                values={['start', 'end']}
+                                selectedValue={durationInheritance}
+                                setSelectedValue={setDurationInheritance}
+                            />
+                        </View>
+                        }
+                    </View>)
+                }
 
-            <Text style={styles.label}>Select a COMPLEXITY type of a param</Text>
-            <SelectionButtons
-                values={["simple", "complex"]}
-                selectedValue={complexityType}
-                setSelectedValue={setComplexityType}
-            />
-            
-            { // show valueType and value props imput only if the param is simple
-            (complexityType === 'simple') &&
-            <View>
-                <Text style={styles.label}>Select a VALUE type of a param</Text>
+                <Text style={styles.label}>Select a COMPLEXITY type of a param</Text>
                 <SelectionButtons
-                    values={["boolean", "quantity", "list"]}
-                    selectedValue={valueType}
-                    setSelectedValue={setValueType}
+                    values={["simple", "complex"]}
+                    selectedValue={complexityType}
+                    setSelectedValue={setComplexityType}
                 />
-                <ValueTypeOptions
-                    option={valueType}
-                    metric={metric}
-                    setMetric={setMetric}
-                    optionList={optionList}
-                    setOptionList={setOptionList}
-                />
-            </View>
-            }
-            { // show param adder if the param is complex
-            (complexityType === 'complex') &&
-            <ScrollView style={{flex: 1}}>
-                <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
-                    {Object.keys(children).map(key => {
-                        return(
-                        <TouchableOpacity
-                            key={key}
-                            style={styles.paramItem}
-                        >
-                            <Text>{children[key]['name']}</Text>
-                        </TouchableOpacity>
-                    )})}
-                    <TouchableOpacity
-                        onPress={() => {
-                            //go to creating a new child param with additional info
-                            navigation.push('EditParam',
-                                {isChild: true,
-                                parentId: isNew ? newParamReference.key : route.params.paramId,
-                                parentDurationType: durationType,
-                                isNew: true,
-                                addAsChildToParent: addChild})
-                        }}
-                        style={styles.button}
-                    >
-                    <Text>+ Add child</Text>
-                    </TouchableOpacity>
+                
+                { // show valueType and value props imput only if the param is simple
+                (complexityType === 'simple') &&
+                <View>
+                    <Text style={styles.label}>Select a VALUE type of a param</Text>
+                    <SelectionButtons
+                        values={["boolean", "quantity", "list"]}
+                        selectedValue={valueType}
+                        setSelectedValue={setValueType}
+                    />
+                    <ValueTypeOptions
+                        option={valueType}
+                        metric={metric}
+                        setMetric={setMetric}
+                        optionList={optionList}
+                        setOptionList={setOptionList}
+                    />
                 </View>
-            </ScrollView>
-            }
-            <View style={{margin: 10}}>
-                <Button
-                    title='Finish editing'
-                    disabled={finishButtonDisabled}
-                    onPress={() => {
-                        setFinishButtonDisabled(true);
-                        let paramObject = {};
-                        paramObject['durationType'] = durationType;
-                        paramObject['name'] = paramName;
-                        paramObject['complexityType'] = complexityType;
-                        paramObject['valueType'] = valueType;
-                        paramObject['metric'] = metric;
-                        paramObject['optionList'] = optionList;
-                        paramObject['children'] = children;
-                        paramObject['parentId'] = parentId;
-                        paramObject['durationInheritance'] = durationInheritance;
+                }
+                { // show param adder if the param is complex
+                (complexityType === 'complex') &&
+                <ScrollView style={{flex: 1}}>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 12}}>
+                        {Object.keys(children).map(key => {
+                            return(
+                            <TouchableOpacity
+                                key={key}
+                                style={styles.paramItem}
+                            >
+                                <Text>{children[key]['name']}</Text>
+                            </TouchableOpacity>
+                        )})}
+                        <TouchableOpacity
+                            onPress={() => {
+                                //go to creating a new child param with additional info
+                                navigation.push('EditParam',
+                                    {isChild: true,
+                                    parentId: isNew ? newParamReference.key : route.params.paramId,
+                                    parentDurationType: durationType,
+                                    isNew: true,
+                                    addAsChildToParent: addChild})
+                            }}
+                            style={styles.button}
+                        >
+                        <Text>+ Add child</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
+                }
+            </View>
+            <View style={{ flexDirection: 'column-reverse' }}>
+                <View style={{margin: 10}}>
+                    <Button
+                        title='Finish editing'
+                        disabled={finishButtonDisabled}
+                        onPress={() => {
+                            setFinishButtonDisabled(true);
+                            let paramObject = {};
+                            paramObject['durationType'] = durationType;
+                            paramObject['name'] = paramName;
+                            paramObject['complexityType'] = complexityType;
+                            paramObject['valueType'] = valueType;
+                            paramObject['metric'] = metric;
+                            paramObject['optionList'] = optionList;
+                            paramObject['children'] = children;
+                            paramObject['parentId'] = parentId;
+                            paramObject['durationInheritance'] = durationInheritance;
 
-                        if(isNew && !isChild) {
-                            newParamReference.set(paramObject);
-                        }
-                        
-                        if(isNew && isChild) {
-                            newParamReference.set(paramObject);
-                            //get back to parent adding current paramId and name to parents' children list
-                            route.params.addAsChildToParent({paramId: newParamReference.key, name: paramName});
-                            navigation.dispatch(CommonActions.goBack());
-                        }
+                            if(isNew && !isChild) {
+                                newParamReference.set(paramObject);
+                            }
+                            
+                            if(isNew && isChild) {
+                                newParamReference.set(paramObject);
+                                //get back to parent adding current paramId and name to parents' children list
+                                route.params.addAsChildToParent({paramId: newParamReference.key, name: paramName});
+                                navigation.dispatch(CommonActions.goBack());
+                            }
 
-                        //save to existing param if it's editing
-                        if(!isNew) {
-                            database()
-                                .ref(`/users/${userId}/params/${route.params.paramId}`)
-                                .set(paramObject)
-                                .then(() => route.params.refreshOnBack());
-                            navigation.dispatch(CommonActions.goBack());
-                            //TODO: Deal with the warning: "Non-serializable values were found in the navigation state"
-                        }
-                    }}
-                />
+                            //save to existing param if it's editing
+                            if(!isNew) {
+                                database()
+                                    .ref(`/users/${userId}/params/${route.params.paramId}`)
+                                    .set(paramObject)
+                                    .then(() => route.params.refreshOnBack());
+                                navigation.dispatch(CommonActions.goBack());
+                                //TODO: Deal with the warning: "Non-serializable values were found in the navigation state"
+                            }
+                        }}
+                    />
+                </View>
             </View>
         </View>
     );
@@ -272,7 +276,6 @@ const ValueTypeOptions = ({ option, metric, setMetric, optionList, setOptionList
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-
     },
     label: {
         padding:10,
